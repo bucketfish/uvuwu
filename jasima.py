@@ -24,8 +24,6 @@ def read_json():
 def get_word_entry(word):
     bundle = read_json()
     entries = bundle["data"]
-    if len(word.split()) > 1:
-        return multiple_words_message.format(word)
     if word not in entries:
         return help_message.format(word)
     return entries[word]

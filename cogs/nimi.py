@@ -7,6 +7,9 @@ from discord import ButtonStyle
 from discord.ui import View
 from discord.ui import Button
 
+from keep_alive import keep_alive
+
+
 from discord import context
 
 from defines import text
@@ -16,26 +19,26 @@ class CogNimi(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        @bot.command(name="nimi")
+        @bot.command(name="d")
         async def command_nimi(ctx, word):
             if word.startswith("word:"):
                 word = word.replace("word:", "", 1)
             await nimi(ctx, word)
-        @bot.command(name="n")
+        @bot.command(name="define")
         async def command_n(ctx, word):
             if word.startswith("word:"):
                 word = word.replace("word:", "", 1)
             await nimi(ctx, word)
 
     @slash_command(
-      name='nimi',
+      name='d',
       description=text["DESC_NIMI"],
     )
     async def slash_nimi(self, ctx, word: Option(str, text["DESC_NIMI_OPTION"])):
         await nimi(ctx, word)
 
     @slash_command(
-      name='n',
+      name='define',
       description=text["DESC_NIMI"],
     )
     async def slash_n(self, ctx, word: Option(str, text["DESC_NIMI_OPTION"])):

@@ -20,28 +20,54 @@ class CogNimi(commands.Cog):
         self.bot = bot
 
         @bot.command(name="define", aliases=["d"])
-        async def command_nimi(ctx, word):
+        async def command_nimi(ctx, *, word):
             if word.startswith("word:"):
                 word = word.replace("word:", "", 1)
             await nimi(ctx, word)
 
     @slash_command(
-      name='d',
-      description=text["DESC_NIMI"],
-    )
-    async def slash_nimi(self, ctx, word: Option(str, text["DESC_NIMI_OPTION"])):
-        await nimi(ctx, word)
-
-    @slash_command(
       name='define',
       description=text["DESC_NIMI"],
     )
-    async def slash_n(self, ctx, word: Option(str, text["DESC_NIMI_OPTION"])):
+    async def slash_d(self, ctx, word: Option(str, text["DESC_NIMI_OPTION"])):
         await nimi(ctx, word)
 
-async def nimi(ctx, word):
+    @slash_command(
+      name='d',
+      description=text["DESC_NIMI"],
+    )
+    async def slash_define(self, ctx, word: Option(str, text["DESC_NIMI_OPTION"])):
+        await nimi(ctx, word)
 
-    # regex the words! ouch
+async def nimi(ctx, input):
+    sentence = input.split()
+    embeds = []
+    message_response = ""
+
+    for word in sentence:
+        word = parse_word(word)
+        response = jasima.get_word_entry(word)
+        if isinstance(response, str):
+            message_response += response
+            continue
+
+        embeds.append(embed_response(word, response))
+
+    if isinstance(ctx, context.ApplicationContext):
+        await ctx.respond(message_response, embeds=embeds)
+    else:
+        await ctx.send(message_response, embeds=embeds)
+
+def embed_response(word, response):
+    embed = Embed()
+    embed.title = response["word"]
+    embed.colour = Colour.from_rgb(247,168,184)
+    for i in response["def"].keys():
+        embed.add_field(name=i, value=response["def"][i])
+
+    return embed
+
+def parse_word(word):
     word = re.sub(r"on", "õ", word)
     word = re.sub(r"un", "ũ", word)
     word = re.sub(r"oe", "ö", word)
@@ -88,25 +114,4 @@ async def nimi(ctx, word):
                 word = word.replace("o", "ò", 1)
                 break
 
-    response = jasima.get_word_entry(word)
-    if isinstance(response, str):
-        if isinstance(ctx, context.ApplicationContext):
-            await ctx.respond(response)
-        else:
-            await ctx.send(response)
-        return
-
-    embed = embed_response(word, response)
-    if isinstance(ctx, context.ApplicationContext):
-        await ctx.respond(embed=embed)
-    else:
-        await ctx.send(embed=embed)
-
-def embed_response(word, response):
-    embed = Embed()
-    embed.title = response["word"]
-    embed.colour = Colour.from_rgb(247,168,184)
-    for i in response["def"].keys():
-        embed.add_field(name=i, value=response["def"][i])
-
-    return embed
+    return word

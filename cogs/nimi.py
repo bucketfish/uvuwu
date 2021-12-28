@@ -7,8 +7,6 @@ from discord import ButtonStyle
 from discord.ui import View
 from discord.ui import Button
 
-from keep_alive import keep_alive
-
 
 from discord import context
 

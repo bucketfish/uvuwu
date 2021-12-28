@@ -1,5 +1,7 @@
 from discord.ext import commands
 
+from keep_alive import keep_alive
+
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -22,4 +24,6 @@ async def on_reaction_add(reaction, user):
 
 if __name__ == "__main__":
     bot.add_cog(CogNimi(bot))
+    keep_alive()
     bot.run(TOKEN, reconnect=True)
+

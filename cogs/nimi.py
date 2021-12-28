@@ -13,17 +13,14 @@ from discord import context
 from defines import text
 import jasima
 
+import re
+
 class CogNimi(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        @bot.command(name="d")
+        @bot.command(name="define", aliases=["d"])
         async def command_nimi(ctx, word):
-            if word.startswith("word:"):
-                word = word.replace("word:", "", 1)
-            await nimi(ctx, word)
-        @bot.command(name="define")
-        async def command_n(ctx, word):
             if word.startswith("word:"):
                 word = word.replace("word:", "", 1)
             await nimi(ctx, word)
@@ -44,6 +41,53 @@ class CogNimi(commands.Cog):
 
 async def nimi(ctx, word):
 
+    # regex the words! ouch
+    word = re.sub(r"on", "õ", word)
+    word = re.sub(r"un", "ũ", word)
+    word = re.sub(r"oe", "ö", word)
+    word = re.sub(r"ue", "ü", word)
+
+    if re.match(r"\*\w*\*", word):
+        word = word.strip("*")
+        for i in word:
+            if i == 'u':
+                word = word.replace("u", "ú", 1)
+                break
+            if i == 'o':
+                word = word.replace("o", "ó", 1)
+                break
+
+    elif re.match(r"~\w*~", word):
+        word = word.strip("~")
+        for i in word:
+            if i == 'u':
+                word = word.replace("u", "û", 1)
+                break
+            if i == 'o':
+                word = word.replace("o", "ô", 1)
+                break
+
+    elif re.match(r">\w*<", word):
+        word = word.strip(">")
+        word = word.strip("<")
+        for i in word:
+            if i == 'u':
+                word = word.replace("u", "ŭ", 1)
+                break
+            if i == 'o':
+                word = word.replace("o", "ŏ", 1)
+                break
+
+    elif re.match(r"-\w*-", word):
+        word = word.strip("-")
+        for i in word:
+            if i == 'u':
+                word = word.replace("u", "ù", 1)
+                break
+            if i == 'o':
+                word = word.replace("o", "ò", 1)
+                break
+
     response = jasima.get_word_entry(word)
     if isinstance(response, str):
         if isinstance(ctx, context.ApplicationContext):
@@ -51,6 +95,7 @@ async def nimi(ctx, word):
         else:
             await ctx.send(response)
         return
+
     embed = embed_response(word, response)
     if isinstance(ctx, context.ApplicationContext):
         await ctx.respond(embed=embed)
